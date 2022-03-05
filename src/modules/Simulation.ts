@@ -1,7 +1,7 @@
-import Common from "./Common";
 import * as THREE from "three";
-import Controls, { ControlProps } from "./Controls";
 
+import Common from "./Common";
+import Controls, { ControlProps } from "./Controls";
 import Advection from "./Advection";
 import ExternalForce from "./ExternalForce";
 import Viscous from "./Viscous";
