@@ -17,13 +17,12 @@ export default class Simulation {
   fboSize: THREE.Vector2;
   cellScale: THREE.Vector2;
   boundarySpace: THREE.Vector2;
-  advection?: Advection;
-  pressure?: Pressure;
-  divergence?: Divergence;
-  visocus?: Viscous;
-  poisson?: Poisson;
-  externalForce?: ExternalForce;
-  viscous?: Viscous;
+  advection: Advection;
+  pressure: Pressure;
+  divergence: Divergence;
+  viscous: Viscous;
+  poisson: Poisson;
+  externalForce: ExternalForce;
 
   constructor() {
     this.options = {
@@ -45,12 +44,6 @@ export default class Simulation {
     this.cellScale = new THREE.Vector2();
     this.boundarySpace = new THREE.Vector2();
     this.fbos = createFbos(this.fboSize);
-
-    this.init();
-  }
-
-  init() {
-    this.calcSize();
 
     this.advection = new Advection({
       cellScale: this.cellScale,
@@ -100,6 +93,8 @@ export default class Simulation {
       dst: this.fbos.vel_0,
       dt: this.options.dt,
     });
+
+    this.calcSize();
   }
 
   calcSize() {
@@ -127,9 +122,9 @@ export default class Simulation {
       this.boundarySpace.copy(this.cellScale);
     }
 
-    this.advection?.updateAdvection(this.options);
+    this.advection.updateAdvection(this.options);
 
-    this.externalForce?.updateExternalForce({
+    this.externalForce.updateExternalForce({
       cursor_size: this.options.cursor_size,
       mouse_force: this.options.mouse_force,
       cellScale: this.cellScale,
@@ -137,18 +132,18 @@ export default class Simulation {
 
     const vel = this.options.isViscous
       ? this.fbos.vel_1
-      : this.viscous!.updateViscous({
+      : this.viscous.updateViscous({
           viscous: this.options.viscous,
           iterations: this.options.iterations_viscous,
           dt: this.options.dt,
         });
 
-    this.divergence?.updateDivergence({ vel });
+    this.divergence.updateDivergence({ vel });
 
-    const pressure = this.poisson?.updatePoisson({
+    const pressure = this.poisson.updatePoisson({
       iterations: this.options.iterations_poisson,
     });
 
-    this.pressure?.updatePressure({ vel, pressure });
+    this.pressure.updatePressure({ vel, pressure });
   }
 }
