@@ -1,22 +1,22 @@
 import { GUI } from "dat.gui";
 
-type Props = {
+export type ControlProps = {
   iterations_poisson: number;
   iterations_viscous: number;
   mouse_force: number;
   resolution: number;
   cursor_size: number;
   viscous: number;
-  isBounce: number;
+  isBounce: boolean;
   dt: number;
   isViscous: boolean;
-  BFECC: boolean;
+  BFECC: number;
 };
 
 export default class Controls {
   gui?: GUI;
-  params: Props;
-  constructor(params: Props) {
+  params: ControlProps;
+  constructor(params: ControlProps) {
     this.params = params;
     this.init();
   }
