@@ -2,9 +2,16 @@ import face_vert from "./glsl/sim/face.vert?raw";
 import poisson_frag from "./glsl/sim/poisson.frag?raw";
 
 import ShaderPass from "./ShaderPass";
+import { SimProps } from "../types/Sim";
 
-export default class Divergence extends ShaderPass {
-  constructor(simProps) {
+interface Props extends SimProps {
+  boundarySpace: THREE.Vector2;
+  dst_: THREE.WebGLRenderTarget;
+  dst: THREE.WebGLRenderTarget;
+  src: THREE.WebGLRenderTarget;
+}
+export default class Poisson extends ShaderPass {
+  constructor(simProps: Props) {
     super({
       material: {
         vertexShader: face_vert,
@@ -25,7 +32,6 @@ export default class Divergence extends ShaderPass {
         },
       },
       output: simProps.dst,
-
       output0: simProps.dst_,
       output1: simProps.dst,
     });
@@ -33,19 +39,16 @@ export default class Divergence extends ShaderPass {
     this.init();
   }
 
-  update({ iterations }) {
+  updatePoisson({ iterations }: { iterations: number }) {
     let p_in, p_out;
 
     for (var i = 0; i < iterations; i++) {
-      if (i % 2 == 0) {
-        p_in = this.props.output0;
-        p_out = this.props.output1;
-      } else {
-        p_in = this.props.output1;
-        p_out = this.props.output0;
-      }
+      const isOdd = i % 2 === 0;
 
-      this.uniforms.pressure.value = p_in.texture;
+      p_in = isOdd ? this.props.output0 : this.props.output1;
+      p_out = isOdd ? this.props.output1 : this.props.output0;
+
+      this.uniforms!.pressure.value = p_in!.texture;
       this.props.output = p_out;
       super.update();
     }
