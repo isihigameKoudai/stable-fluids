@@ -1,7 +1,7 @@
 import * as THREE from "three";
-
 import Common from "./Common";
 import Controls, { ControlProps } from "./Controls";
+
 import Advection from "./Advection";
 import ExternalForce from "./ExternalForce";
 import Viscous from "./Viscous";
@@ -43,8 +43,20 @@ export default class Simulation {
     this.fboSize = new THREE.Vector2();
     this.cellScale = new THREE.Vector2();
     this.boundarySpace = new THREE.Vector2();
+
+    // clacSize
+    const width = Math.round(this.options.resolution * Common.width!);
+    const height = Math.round(this.options.resolution * Common.height!);
+
+    const px_x = 1.0 / width;
+    const px_y = 1.0 / height;
+
+    this.cellScale.set(px_x, px_y);
+    this.fboSize.set(width, height);
+
     this.fbos = createFbos(this.fboSize);
 
+    // createShaderPass()
     this.advection = new Advection({
       cellScale: this.cellScale,
       fboSize: this.fboSize,
@@ -93,23 +105,9 @@ export default class Simulation {
       dst: this.fbos.vel_0,
       dt: this.options.dt,
     });
-
-    this.calcSize();
-  }
-
-  calcSize() {
-    const width = Math.round(this.options.resolution * Common.width!);
-    const height = Math.round(this.options.resolution * Common.height!);
-
-    const px_x = 1.0 / width;
-    const px_y = 1.0 / height;
-
-    this.cellScale.set(px_x, px_y);
-    this.fboSize.set(width, height);
   }
 
   resize() {
-    this.calcSize();
     (Object.keys(this.fbos) as (keyof Fbos)[]).forEach((key) => {
       this.fbos[key].setSize(this.fboSize.x, this.fboSize.y);
     });

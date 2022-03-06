@@ -2,17 +2,17 @@ import face_vert from "./glsl/sim/face.vert?raw";
 import viscous_frag from "./glsl/sim/viscous.frag?raw";
 
 import ShaderPass from "./ShaderPass";
-import { SimProps } from "../types/Sim";
 
 // boundarySpace
-interface Props extends SimProps {
+type Props = {
+  cellScale: THREE.Vector2;
   boundarySpace: THREE.Vector2;
   dst_: THREE.WebGLRenderTarget;
   dst: THREE.WebGLRenderTarget;
   src: THREE.WebGLRenderTarget;
   viscous: number;
   dt: number;
-}
+};
 export default class Viscous extends ShaderPass {
   constructor(simProps: Props) {
     super({

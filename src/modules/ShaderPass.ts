@@ -20,7 +20,6 @@ export default class ShaderPass {
   uniforms: THREE.ShaderMaterialParameters["uniforms"];
 
   constructor(props: ShaderPassProps) {
-    console.log(props);
     this.props = props;
     this.uniforms = this.props.material?.uniforms;
   }
