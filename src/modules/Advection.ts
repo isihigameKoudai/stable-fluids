@@ -1,35 +1,41 @@
+import * as THREE from "three";
+
 import face_vert from "./glsl/sim/face.vert?raw";
 import line_vert from "./glsl/sim/line.vert?raw";
-
 import advection_frag from "./glsl/sim/advection.frag?raw";
 import ShaderPass from "./ShaderPass";
 import { ControlProps } from "./Controls";
 import { SimProps } from "../types/Sim";
 
-import * as THREE from "three";
+interface Props extends SimProps {
+  fboSize: THREE.Vector2;
+  src: THREE.WebGLRenderTarget;
+  dst: THREE.WebGLRenderTarget;
+  dt: number;
+}
 
 export default class Advection extends ShaderPass {
   line?: THREE.LineSegments;
-  constructor(simProps: SimProps) {
+  constructor(simProps: Props) {
     super({
       material: {
         vertexShader: face_vert,
         fragmentShader: advection_frag,
         uniforms: {
           boundarySpace: {
-            value: simProps.cellScale!,
+            value: simProps.cellScale,
           },
           px: {
-            value: simProps.cellScale!,
+            value: simProps.cellScale,
           },
           fboSize: {
-            value: simProps.fboSize!,
+            value: simProps.fboSize,
           },
           velocity: {
-            value: simProps.src!.texture,
+            value: simProps.src.texture,
           },
           dt: {
-            value: simProps.dt!,
+            value: simProps.dt,
           },
           isBFECC: {
             value: true,
@@ -80,7 +86,7 @@ export default class Advection extends ShaderPass {
   updateAdvection({ dt, isBounce, BFECC }: ControlProps) {
     this.uniforms.dt!.value = dt;
     this.line!.visible = isBounce;
-    this.uniforms!.isBFECC.value = BFECC;
+    this.uniforms!.isBFECC!.value = BFECC;
 
     super.update();
   }
