@@ -28,7 +28,7 @@ export type Uniforms = {
   };
   v?: {
     value: number | null;
-  },
+  };
   isBFECC?: {
     value: boolean;
   };
@@ -72,7 +72,7 @@ export default class ShaderPass {
   }
 
   update() {
-    Common.renderer?.setRenderTarget(this.props?.output?);
+    Common.renderer?.setRenderTarget(this.props.output!);
     Common.renderer?.render(this.scene!, this.camera!);
     Common.renderer?.setRenderTarget(null);
   }
