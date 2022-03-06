@@ -49,8 +49,10 @@ export default class Pressure extends ShaderPass {
     vel: THREE.WebGLRenderTarget | THREE.WebGLCubeRenderTarget;
     pressure?: THREE.WebGLRenderTarget;
   }) {
-    this.uniforms.velocity!.value = vel.texture;
-    this.uniforms.pressure!.value = pressure!.texture;
+    if (this.uniforms) {
+      this.uniforms.velocity!.value = vel.texture;
+      this.uniforms.pressure!.value = pressure!.texture;
+    }
     super.update();
   }
 }

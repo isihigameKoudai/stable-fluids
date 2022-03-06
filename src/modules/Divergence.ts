@@ -39,7 +39,9 @@ export default class Divergence extends ShaderPass {
   }
 
   updateDivergence({ vel }: { vel: THREE.WebGLRenderTarget }) {
-    this.uniforms.velocity!.value = vel.texture;
+    if (this.uniforms) {
+      this.uniforms.velocity!.value = vel.texture;
+    }
     super.update();
   }
 }

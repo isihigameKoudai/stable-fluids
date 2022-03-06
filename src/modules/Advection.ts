@@ -84,7 +84,7 @@ export default class Advection extends ShaderPass {
   }
 
   updateAdvection({ dt, isBounce, BFECC }: ControlProps) {
-    this.uniforms.dt!.value = dt;
+    if (this.uniforms) this.uniforms.dt.value = dt;
     this.line!.visible = isBounce;
     this.uniforms!.isBFECC!.value = BFECC;
 

@@ -35,7 +35,7 @@ export default class Simulation {
       isBounce: false,
       dt: 0.014,
       isViscous: false,
-      BFECC: 0,
+      BFECC: true,
     };
 
     new Controls(this.options);

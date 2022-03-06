@@ -10,7 +10,7 @@ interface Props extends SimProps {
   dst_: THREE.WebGLRenderTarget;
   dst: THREE.WebGLRenderTarget;
   src: THREE.WebGLRenderTarget;
-  viscous?: number | null;
+  viscous: number;
   dt: number;
 }
 export default class Viscous extends ShaderPass {
@@ -29,14 +29,14 @@ export default class Viscous extends ShaderPass {
           velocity_new: {
             value: simProps.dst_.texture,
           },
-          // v: {
-          //   value: simProps.viscous,
-          // },
+          v: {
+            value: simProps.viscous,
+          },
           px: {
-            value: simProps.cellScale!,
+            value: simProps.cellScale,
           },
           dt: {
-            value: simProps.dt!,
+            value: simProps.dt,
           },
         },
       },
@@ -62,18 +62,20 @@ export default class Viscous extends ShaderPass {
     const exportedFboOut: THREE.WebGLRenderTarget =
       (iterations - 1) % 2 === 0 ? this.props.output1! : this.props.output0!;
 
-    this.uniforms.v!.value = viscous;
+    if (this.uniforms) {
+      this.uniforms.v.value = viscous;
+    }
 
     for (var i = 0; i < iterations; i++) {
       const isOdd = i % 2 == 0;
       const fbo_in = isOdd ? this.props.output0! : this.props.output1!;
       const fbo_out = isOdd ? this.props.output1! : this.props.output0!;
 
-      if (!!fbo_in) {
-        this.uniforms.velocity_new!.value = fbo_in.texture;
-      }
+      if (this.uniforms) this.uniforms.velocity_new!.value = fbo_in.texture;
       this.props.output = fbo_out;
-      this.uniforms.dt!.value = dt;
+      if (!!fbo_in && this.uniforms) {
+        this.uniforms.dt!.value = dt;
+      }
 
       super.update();
     }

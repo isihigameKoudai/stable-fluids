@@ -2,41 +2,9 @@ import Common from "./Common";
 import * as THREE from "three";
 
 export type Uniforms = THREE.ShaderMaterialParameters["uniforms"];
-// export type Uniforms = {
-//   boundarySpace?: {
-//     value: THREE.Vector2;
-//   };
-//   pressure?: {
-//     value: THREE.WebGLRenderTarget["texture"];
-//   };
-//   divergence?: {
-//     value: THREE.WebGLRenderTarget["texture"];
-//   };
-//   px: {
-//     value: THREE.Vector2 | null;
-//   };
-//   fboSize?: {
-//     value: THREE.Vector2 | null;
-//   };
-//   velocity?: {
-//     value: THREE.WebGLRenderTarget["texture"];
-//   };
-//   velocity_new?: {
-//     value: THREE.WebGLRenderTarget["texture"];
-//   };
-//   dt?: {
-//     value: number | null;
-//   };
-//   v: {
-//     value: number;
-//   };
-//   isBFECC?: {
-//     value: boolean;
-//   };
-// };
 
 export type ShaderPassProps = {
-  material: THREE.ShaderMaterialParameters;
+  material?: THREE.ShaderMaterialParameters;
   output?: THREE.WebGLRenderTarget;
   output0?: THREE.WebGLRenderTarget;
   output1?: THREE.WebGLRenderTarget;
