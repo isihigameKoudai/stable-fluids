@@ -4,8 +4,16 @@ import pressure_frag from "./glsl/sim/pressure.frag?raw";
 import ShaderPass from "./ShaderPass";
 import { SimProps } from "../types/Sim";
 
+interface Props extends SimProps {
+  boundarySpace: THREE.Vector2;
+  src_p: THREE.WebGLRenderTarget;
+  src_v: THREE.WebGLRenderTarget;
+  dst?: THREE.WebGLRenderTarget;
+  dt: number;
+}
+
 export default class Pressure extends ShaderPass {
-  constructor(simProps: SimProps) {
+  constructor(simProps: Props) {
     super({
       material: {
         vertexShader: face_vert,
@@ -34,9 +42,15 @@ export default class Pressure extends ShaderPass {
     this.init();
   }
 
-  updatePressure({ vel, pressure }) {
-    this.uniforms.velocity.value = vel.texture;
-    this.uniforms.pressure!.value = pressure.texture;
+  updatePressure({
+    vel,
+    pressure,
+  }: {
+    vel: THREE.WebGLRenderTarget | THREE.WebGLCubeRenderTarget;
+    pressure?: THREE.WebGLRenderTarget;
+  }) {
+    this.uniforms.velocity!.value = vel.texture;
+    this.uniforms.pressure!.value = pressure!.texture;
     super.update();
   }
 }
