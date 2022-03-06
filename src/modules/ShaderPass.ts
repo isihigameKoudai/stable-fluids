@@ -1,42 +1,48 @@
 import Common from "./Common";
 import * as THREE from "three";
 
-type Uniforms = {
-  boundarySpace: {
-    value: number | null;
+export type Uniforms = {
+  boundarySpace?: {
+    value: THREE.Vector2;
   };
   pressure?: {
-    value: number | null;
+    value: THREE.WebGLRenderTarget["texture"];
   };
   divergence?: {
-    value: number | null;
+    value: THREE.WebGLRenderTarget["texture"];
   };
   px: {
+    value: THREE.Vector2 | null;
+  };
+  fboSize?: {
+    value: THREE.Vector2 | null;
+  };
+  velocity?: {
+    value: THREE.WebGLRenderTarget["texture"];
+  };
+  velocity_new?: {
+    value: THREE.WebGLRenderTarget["texture"];
+  };
+  dt?: {
     value: number | null;
   };
-  fboSize: {
+  v?: {
     value: number | null;
   },
-  velocity: {
-    value: number | null;
-  },
-  dt: {
-    value: number | null;
-  },
-  isBFECC: {
+  isBFECC?: {
     value: boolean;
-  },
+  };
 };
 
 export type ShaderPassProps = {
-  material: {
+  material?: {
     vertexShader: string;
     fragmentShader: string;
     uniforms: Uniforms;
   };
-  output?: number | null;
-  output0?: number | null;
-  output1?: number | null;
+  output?: THREE.WebGLRenderTarget;
+  output0?: THREE.WebGLRenderTarget;
+  output1?: THREE.WebGLRenderTarget;
 };
 
 export default class ShaderPass {
@@ -50,7 +56,7 @@ export default class ShaderPass {
 
   constructor(props: ShaderPassProps) {
     this.props = props;
-    this.uniforms = this.props.material?.uniforms;
+    this.uniforms = this.props.material!.uniforms;
   }
 
   init() {
