@@ -4,8 +4,16 @@ import divergence_frag from "./glsl/sim/divergence.frag?raw";
 import ShaderPass from "./ShaderPass";
 import { SimProps } from "../types/Sim";
 
+interface Props extends SimProps {
+  boundarySpace: THREE.Vector2;
+  dst_: THREE.WebGLRenderTarget;
+  dst: THREE.WebGLRenderTarget;
+  src: THREE.WebGLRenderTarget;
+  dt: number;
+}
+
 export default class Divergence extends ShaderPass {
-  constructor(simProps: SimProps) {
+  constructor(simProps: Props) {
     super({
       material: {
         vertexShader: face_vert,
@@ -31,8 +39,8 @@ export default class Divergence extends ShaderPass {
     this.init();
   }
 
-  updateDivergence({ vel }) {
-    this.uniforms.velocity.value = vel.texture;
+  updateDivergence({ vel }: { vel: THREE.WebGLRenderTarget }) {
+    this.uniforms.velocity!.value = vel.texture;
     super.update();
   }
 }
