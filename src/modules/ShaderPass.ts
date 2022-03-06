@@ -1,45 +1,42 @@
 import Common from "./Common";
 import * as THREE from "three";
 
-export type Uniforms = {
-  boundarySpace?: {
-    value: THREE.Vector2;
-  };
-  pressure?: {
-    value: THREE.WebGLRenderTarget["texture"];
-  };
-  divergence?: {
-    value: THREE.WebGLRenderTarget["texture"];
-  };
-  px: {
-    value: THREE.Vector2 | null;
-  };
-  fboSize?: {
-    value: THREE.Vector2 | null;
-  };
-  velocity?: {
-    value: THREE.WebGLRenderTarget["texture"];
-  };
-  velocity_new?: {
-    value: THREE.WebGLRenderTarget["texture"];
-  };
-  dt?: {
-    value: number | null;
-  };
-  v?: {
-    value: number | null;
-  };
-  isBFECC?: {
-    value: boolean;
-  };
-};
+export type Uniforms = THREE.ShaderMaterialParameters["uniforms"];
+// export type Uniforms = {
+//   boundarySpace?: {
+//     value: THREE.Vector2;
+//   };
+//   pressure?: {
+//     value: THREE.WebGLRenderTarget["texture"];
+//   };
+//   divergence?: {
+//     value: THREE.WebGLRenderTarget["texture"];
+//   };
+//   px: {
+//     value: THREE.Vector2 | null;
+//   };
+//   fboSize?: {
+//     value: THREE.Vector2 | null;
+//   };
+//   velocity?: {
+//     value: THREE.WebGLRenderTarget["texture"];
+//   };
+//   velocity_new?: {
+//     value: THREE.WebGLRenderTarget["texture"];
+//   };
+//   dt?: {
+//     value: number | null;
+//   };
+//   v: {
+//     value: number;
+//   };
+//   isBFECC?: {
+//     value: boolean;
+//   };
+// };
 
 export type ShaderPassProps = {
-  material?: {
-    vertexShader: string;
-    fragmentShader: string;
-    uniforms: Uniforms;
-  };
+  material: THREE.ShaderMaterialParameters;
   output?: THREE.WebGLRenderTarget;
   output0?: THREE.WebGLRenderTarget;
   output1?: THREE.WebGLRenderTarget;
@@ -52,11 +49,12 @@ export default class ShaderPass {
   geometry?: THREE.PlaneBufferGeometry;
   plane?: THREE.Mesh;
   props: ShaderPassProps;
-  uniforms: Uniforms;
+  uniforms: THREE.ShaderMaterialParameters["uniforms"];
 
   constructor(props: ShaderPassProps) {
+    console.log(props);
     this.props = props;
-    this.uniforms = this.props.material!.uniforms;
+    this.uniforms = this.props.material?.uniforms;
   }
 
   init() {
