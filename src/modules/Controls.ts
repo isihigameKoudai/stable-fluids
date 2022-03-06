@@ -10,7 +10,7 @@ export type ControlProps = {
   isBounce: boolean;
   dt: number;
   isViscous: boolean;
-  BFECC: number;
+  BFECC: boolean;
 };
 
 export default class Controls {
