@@ -1,21 +1,32 @@
-import mouse_vert from "./glsl/sim/mouse.vert?raw";
-import externalForce_frag from "./glsl/sim/externalForce.frag?raw";
-import ShaderPass from "./ShaderPass";
-import Mouse from "./Mouse";
-
 import * as THREE from "three";
 
+import mouse_vert from "./glsl/sim/mouse.vert?raw";
+import externalForce_frag from "./glsl/sim/externalForce.frag?raw";
+
+import ShaderPass from "./ShaderPass";
+import Mouse from "./Mouse";
+import { ControlProps } from "./Controls";
+import { SimProps } from "../types/Sim";
+
+interface Props extends SimProps {
+  dst: THREE.WebGLRenderTarget;
+  cursor_size: number;
+}
+
+type UpdateProps = {
+  cursor_size: ControlProps["cursor_size"];
+  mouse_force: ControlProps["mouse_force"];
+  cellScale: SimProps["cellScale"];
+};
+
 export default class ExternalForce extends ShaderPass {
-  constructor(simProps) {
+  mouse: THREE.Mesh;
+  constructor(simProps: Props) {
     super({
       output: simProps.dst,
     });
-
-    this.init(simProps);
-  }
-
-  init(simProps) {
     super.init();
+
     const mouseG = new THREE.PlaneBufferGeometry(1, 1);
 
     const mouseM = new THREE.RawShaderMaterial({
@@ -39,10 +50,10 @@ export default class ExternalForce extends ShaderPass {
     });
 
     this.mouse = new THREE.Mesh(mouseG, mouseM);
-    this.scene.add(this.mouse);
+    this.scene!.add(this.mouse);
   }
 
-  update(props) {
+  updateExternalForce(props: UpdateProps) {
     const forceX = (Mouse.diff.x / 2) * props.mouse_force;
     const forceY = (Mouse.diff.y / 2) * props.mouse_force;
 
