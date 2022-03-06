@@ -1,7 +1,6 @@
-import Mouse from "./Mouse";
-import Common from "./Common";
 import * as THREE from "three";
-import Controls from "./Controls";
+import Common from "./Common";
+import Controls, { ControlProps } from "./Controls";
 
 import Advection from "./Advection";
 import ExternalForce from "./ExternalForce";
@@ -10,26 +9,22 @@ import Divergence from "./Divergence";
 import Poisson from "./Poisson";
 import Pressure from "./Pressure";
 
+import { Fbos, createFbos } from "../utils/cretateFbos";
+
 export default class Simulation {
-  constructor(props) {
-    this.props = props;
+  options: ControlProps;
+  fbos: Fbos;
+  fboSize: THREE.Vector2;
+  cellScale: THREE.Vector2;
+  boundarySpace: THREE.Vector2;
+  advection: Advection;
+  pressure: Pressure;
+  divergence: Divergence;
+  viscous: Viscous;
+  poisson: Poisson;
+  externalForce: ExternalForce;
 
-    this.fbos = {
-      vel_0: null,
-      vel_1: null,
-
-      // for calc next velocity with viscous
-      vel_viscous0: null,
-      vel_viscous1: null,
-
-      // for calc pressure
-      div: null,
-
-      // for calc poisson equation
-      pressure_0: null,
-      pressure_1: null,
-    };
-
+  constructor() {
     this.options = {
       iterations_poisson: 32,
       iterations_viscous: 32,
@@ -43,38 +38,25 @@ export default class Simulation {
       BFECC: true,
     };
 
-    const controls = new Controls(this.options);
+    new Controls(this.options);
 
     this.fboSize = new THREE.Vector2();
     this.cellScale = new THREE.Vector2();
     this.boundarySpace = new THREE.Vector2();
 
-    this.init();
-  }
+    // clacSize
+    const width = Math.round(this.options.resolution * Common.width!);
+    const height = Math.round(this.options.resolution * Common.height!);
 
-  init() {
-    this.calcSize();
-    this.createAllFBO();
-    this.createShaderPass();
-  }
+    const px_x = 1.0 / width;
+    const px_y = 1.0 / height;
 
-  createAllFBO() {
-    const type = /(iPad|iPhone|iPod)/g.test(navigator.userAgent)
-      ? THREE.HalfFloatType
-      : THREE.FloatType;
+    this.cellScale.set(px_x, px_y);
+    this.fboSize.set(width, height);
 
-    for (let key in this.fbos) {
-      this.fbos[key] = new THREE.WebGLRenderTarget(
-        this.fboSize.x,
-        this.fboSize.y,
-        {
-          type: type,
-        }
-      );
-    }
-  }
+    this.fbos = createFbos(this.fboSize);
 
-  createShaderPass() {
+    // createShaderPass()
     this.advection = new Advection({
       cellScale: this.cellScale,
       fboSize: this.fboSize,
@@ -125,23 +107,10 @@ export default class Simulation {
     });
   }
 
-  calcSize() {
-    const width = Math.round(this.options.resolution * Common.width);
-    const height = Math.round(this.options.resolution * Common.height);
-
-    const px_x = 1.0 / width;
-    const px_y = 1.0 / height;
-
-    this.cellScale.set(px_x, px_y);
-    this.fboSize.set(width, height);
-  }
-
   resize() {
-    this.calcSize();
-
-    for (let key in this.fbos) {
+    (Object.keys(this.fbos) as (keyof Fbos)[]).forEach((key) => {
       this.fbos[key].setSize(this.fboSize.x, this.fboSize.y);
-    }
+    });
   }
 
   update() {
@@ -151,30 +120,28 @@ export default class Simulation {
       this.boundarySpace.copy(this.cellScale);
     }
 
-    this.advection.update(this.options);
+    this.advection.updateAdvection(this.options);
 
-    this.externalForce.update({
+    this.externalForce.updateExternalForce({
       cursor_size: this.options.cursor_size,
       mouse_force: this.options.mouse_force,
       cellScale: this.cellScale,
     });
 
-    let vel = this.fbos.vel_1;
+    const vel = this.options.isViscous
+      ? this.fbos.vel_1
+      : this.viscous.updateViscous({
+          viscous: this.options.viscous,
+          iterations: this.options.iterations_viscous,
+          dt: this.options.dt,
+        });
 
-    if (this.options.isViscous) {
-      vel = this.viscous.update({
-        viscous: this.options.viscous,
-        iterations: this.options.iterations_viscous,
-        dt: this.options.dt,
-      });
-    }
+    this.divergence.updateDivergence({ vel });
 
-    this.divergence.update({ vel });
-
-    const pressure = this.poisson.update({
+    const pressure = this.poisson.updatePoisson({
       iterations: this.options.iterations_poisson,
     });
 
-    this.pressure.update({ vel, pressure });
+    this.pressure.updatePressure({ vel, pressure });
   }
 }
