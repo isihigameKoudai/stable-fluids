@@ -6,7 +6,6 @@ import { SimProps } from "../types/Sim";
 
 interface Props extends SimProps {
   boundarySpace: THREE.Vector2;
-  dst_: THREE.WebGLRenderTarget;
   dst: THREE.WebGLRenderTarget;
   src: THREE.WebGLRenderTarget;
   dt: number;
