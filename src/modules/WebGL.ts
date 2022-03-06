@@ -1,4 +1,3 @@
-// import * as THREE from "three";
 import Common from "./Common";
 import Output from "./Output";
 import Mouse from "./Mouse";
