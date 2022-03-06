@@ -47,10 +47,13 @@ export default class Poisson extends ShaderPass {
         p_out: odd ? this.props.output! : this.props.output0!,
       };
     };
-    const p_in: THREE.WebGLRenderTarget = createRenderTarget().p_in;
     const p_out: THREE.WebGLRenderTarget = createRenderTarget().p_out;
 
     for (var i = 0; i < iterations; i++) {
+      const isOdd = i % 2 === 0;
+      const p_in = isOdd ? this.props.output0! : this.props.output1!;
+      const p_out = isOdd ? this.props.output0! : this.props.output1!;
+
       this.uniforms!.pressure!.value = p_in.texture;
       this.props.output = p_out;
       super.update();

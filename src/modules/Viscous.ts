@@ -4,8 +4,17 @@ import viscous_frag from "./glsl/sim/viscous.frag?raw";
 import ShaderPass from "./ShaderPass";
 import { SimProps } from "../types/Sim";
 
+// boundarySpace
+interface Props extends SimProps {
+  boundarySpace: THREE.Vector2;
+  dst_: THREE.WebGLRenderTarget;
+  dst: THREE.WebGLRenderTarget;
+  src: THREE.WebGLRenderTarget;
+  viscous?: number | null;
+  dt: number;
+}
 export default class Viscous extends ShaderPass {
-  constructor(simProps: SimProps) {
+  constructor(simProps: Props) {
     super({
       material: {
         vertexShader: face_vert,
@@ -20,46 +29,55 @@ export default class Viscous extends ShaderPass {
           velocity_new: {
             value: simProps.dst_.texture,
           },
-          v: {
-            value: simProps.viscous,
-          },
+          // v: {
+          //   value: simProps.viscous,
+          // },
           px: {
-            value: simProps.cellScale,
+            value: simProps.cellScale!,
           },
           dt: {
-            value: simProps.dt,
+            value: simProps.dt!,
           },
         },
       },
 
       output: simProps.dst,
 
-      output0: simProps.dst_?,
+      output0: simProps.dst_,
       output1: simProps.dst,
     });
 
     this.init();
   }
 
-  updateViscous({ viscous, iterations, dt }) {
-    let fbo_in: { texture: number }, fbo_out;
-    this.uniforms.v!.value = viscous;
-    for (var i = 0; i < iterations; i++) {
-      if (i % 2 == 0) {
-        fbo_in = this.props.output0?;
-        fbo_out = this.props.output1;
-      } else {
-        fbo_in = this.props.output1?;
-        fbo_out = this.props.output0;
-      }
+  updateViscous({
+    viscous,
+    iterations,
+    dt,
+  }: {
+    viscous: number;
+    iterations: number;
+    dt: number;
+  }) {
+    const exportedFboOut: THREE.WebGLRenderTarget =
+      (iterations - 1) % 2 === 0 ? this.props.output1! : this.props.output0!;
 
-      this.uniforms.velocity_new!.value = fbo_in.texture;
+    this.uniforms.v!.value = viscous;
+
+    for (var i = 0; i < iterations; i++) {
+      const isOdd = i % 2 == 0;
+      const fbo_in = isOdd ? this.props.output0! : this.props.output1!;
+      const fbo_out = isOdd ? this.props.output1! : this.props.output0!;
+
+      if (!!fbo_in) {
+        this.uniforms.velocity_new!.value = fbo_in.texture;
+      }
       this.props.output = fbo_out;
       this.uniforms.dt!.value = dt;
 
       super.update();
     }
 
-    return fbo_out;
+    return exportedFboOut;
   }
 }
