@@ -4,8 +4,14 @@ import poisson_frag from "./glsl/sim/poisson.frag?raw";
 import ShaderPass from "./ShaderPass";
 import { SimProps } from "../types/Sim";
 
+interface Props extends SimProps {
+  boundarySpace: THREE.Vector2;
+  dst_: THREE.WebGLRenderTarget;
+  dst: THREE.WebGLRenderTarget;
+  src: THREE.WebGLRenderTarget;
+}
 export default class Poisson extends ShaderPass {
-  constructor(simProps: SimProps) {
+  constructor(simProps: Props) {
     super({
       material: {
         vertexShader: face_vert,
@@ -26,26 +32,26 @@ export default class Poisson extends ShaderPass {
         },
       },
       output: simProps.dst,
-      output0: simProps.dst_?,
+      output0: simProps.dst_,
       output1: simProps.dst,
     });
 
     this.init();
   }
 
-  updatePoisson({ iterations }) {
-    let p_in: { texture: number }, p_out;
+  updatePoisson({ iterations }: { iterations: number }) {
+    const createRenderTarget = () => {
+      const odd = (iterations - 1) % 2 === 0;
+      return {
+        p_in: odd ? this.props.output0! : this.props.output1!,
+        p_out: odd ? this.props.output! : this.props.output0!,
+      };
+    };
+    const p_in: THREE.WebGLRenderTarget = createRenderTarget().p_in;
+    const p_out: THREE.WebGLRenderTarget = createRenderTarget().p_out;
 
     for (var i = 0; i < iterations; i++) {
-      if (i % 2 == 0) {
-        p_in = this.props.output0?;
-        p_out = this.props.output1;
-      } else {
-        p_in = this.props.output1?;
-        p_out = this.props.output0;
-      }
-
-      this.uniforms.pressure!.value = p_in.texture;
+      this.uniforms!.pressure!.value = p_in.texture;
       this.props.output = p_out;
       super.update();
     }
